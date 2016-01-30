@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Meander {
 
 	PerfectMatching top;
@@ -5,6 +7,51 @@ public class Meander {
 	int order;
 	static int d = PerfectMatching.d; // diameter of points
 	static int x = PerfectMatching.x; // horizontal separation of points
+
+	public static void main(String[] args) {
+		System.out.println(howMany(3));
+		System.out.println(allMeanders(3).length);
+	}
+	
+	/**
+	 * returns a list containing each meander of the specified order (doesn't check if any meander is a flipped version of a meander already in the list)
+	 */
+	public static Meander[] allMeanders(int order) { 
+		ArrayList<Meander> meanders = new ArrayList<Meander>();
+		String[] perfectMatchings = Catalan.CnStrings(order);
+		for (int i = 0; i < perfectMatchings.length; i++) {
+			for (int j = 0; j < perfectMatchings.length; j++) {
+				Meander meander = new Meander(new PerfectMatching(perfectMatchings[i]), new PerfectMatching(perfectMatchings[j]));
+				if (meander.isMeander()) {
+					meanders.add(meander);
+					meander.draw();
+				}
+			}
+		}
+		return meanders.toArray(new Meander[meanders.size()]);
+	}
+
+	/**
+	 * counts how many meanders there are of a given order
+	 * @param order
+	 */
+	public static int howMany(int order) {
+		int count = 0;
+		String[] perfectMatchings = Catalan.CnStrings(order);
+		boolean[][] matches = new boolean[perfectMatchings.length][perfectMatchings.length];
+		for (int i = 0; i < perfectMatchings.length; i++) {
+			for (int j = 0; j < perfectMatchings.length; j++) {
+				if (!matches[i][j]) {
+					Meander meander = new Meander(new PerfectMatching(perfectMatchings[i]), new PerfectMatching(perfectMatchings[j]));
+					if (meander.isMeander()) {
+						count++;
+						matches[j][i] = false; // switch to true to stop counting upside-down versions of already counted meanders
+					}
+				}
+			}
+		}
+		return count;
+	}
 	
 	/**
 	 * given a size, generates each possible pair of perfect matchings of that size (there are C(mOrder)^2 such pairs, where C(n) is the nth Catalan number),
@@ -129,8 +176,6 @@ public class Meander {
 					}
 				} catch (Exception e) {	}
 			}
-				
-			
 		}
 		draw();
 		System.out.println("couldn't find a move; indices " + s + ", " + t);
@@ -140,7 +185,7 @@ public class Meander {
 	
 	
 	public void draw() {
-		double[][][]pointsArrays = new double[2][order*2][4];
+		double[][][] pointsArrays = new double[2][order*2][4];
 		int[][][] arcsArrays = new int[2][order][4];
 		PerfectMatching[] matchings = {top, bottom};
 		
@@ -162,8 +207,6 @@ public class Meander {
 		
 	}
 	
-	public static void main(String[] args) {
-		testMatchings(3);
-	}
+	
 	
 }

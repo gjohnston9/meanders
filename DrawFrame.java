@@ -14,19 +14,21 @@ public class DrawFrame extends JComponent {
 	
 	double[][][] ellipsesArrays = new double[2][][]; // list of ellipses for top ([0][..][..]) and bottom ([1][..][..])
 	int[][][] arcsArrays = new int [2][][]; // list of arcs to draw for top ([0][..][..]) and bottom ([1][..][..])
-	
-	
+
+
 	public DrawFrame(double[][] ellipseArray, int[][] arcsArray) {
 		ellipsesArrays[0] = ellipseArray;
 		arcsArrays[0] = arcsArray;
 	}
 	
-	public DrawFrame(double[][] ellipseArray, int[][] arcsArray, double[][] ellipseArray2, int[][] arcsArray2) {		
+	public DrawFrame(double[][] ellipseArray, int[][] arcsArray, double[][] ellipseArray2, int[][] arcsArray2) {
 		ellipsesArrays[0] = ellipseArray;
 		ellipsesArrays[1] = ellipseArray2;
 		arcsArrays[0] = arcsArray;
 		arcsArrays[1] = arcsArray2;
 	}
+	
+	
 	
 	
 	public void paintComponent (Graphics g) {
@@ -52,7 +54,6 @@ public class DrawFrame extends JComponent {
 	    		}
 	    	}
 	    }
-	    
 	}
 	
 	public static void drawPerfectMatching(double[][] ellipseArray, int[][] arcsArray) {

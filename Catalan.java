@@ -113,10 +113,7 @@ public class Catalan {
 	
 	
 	public static void main(String[] args) {
-		String[] cats = CnStrings(5);
-		for (int i = 0; i < cats.length; i++) {
-			System.out.println(cats[i]);
-		}
+		
 	}
 	
 }
