@@ -46,8 +46,4 @@ public class PMGenerator extends Application {
         double canvasWidth = g.getCanvas().getWidth();
         double canvasHeight = g.getCanvas().getHeight();
     }
-
-    public static void main(String[] args) {
-        System.out.println("hello");
-    }
 }

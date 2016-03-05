@@ -8,11 +8,19 @@ public class Meander {
 	static int d = PerfectMatching.d; // diameter of points
 	static int x = PerfectMatching.x; // horizontal separation of points
 
+
+
 	public static void main(String[] args) {
-		System.out.println(howMany(3));
-		System.out.println(allMeanders(3).length);
+		// System.out.println(howMany(3));
+		// System.out.println(allMeanders(3).length);
+		Meander[][] mbo = allMeandersSeparatedByOrder(5);
+		for (int i = 0; i < mbo.length; i++) {
+			System.out.println(mbo[i].length);
+		}
 	}
 	
+
+
 	/**
 	 * returns a list containing each meander of the specified order (doesn't check if any meander is a flipped version of a meander already in the list)
 	 */
@@ -24,12 +32,41 @@ public class Meander {
 				Meander meander = new Meander(new PerfectMatching(perfectMatchings[i]), new PerfectMatching(perfectMatchings[j]));
 				if (meander.isMeander()) {
 					meanders.add(meander);
-					meander.draw();
+					// meander.draw();
 				}
 			}
 		}
 		return meanders.toArray(new Meander[meanders.size()]);
 	}
+
+	/**
+	 * @int order order of meanders
+	 * @return array where array[k] is an array containing each meander that has its top on level k of G(n)
+	 */
+	public static Meander[][] allMeandersSeparatedByOrder(int order) {
+		Meander[][] meanders = new Meander[order][]; // to be returned
+		Meander[] allMeanders = allMeanders(order);
+		for (int i = 0; i < order; i++) { // determine how many meanders are on each level (level of a meander is determined by the level of its top)
+			int count = 0;
+			for (Meander meander : allMeanders) {
+				if (meander.top.level() == i+1) {
+					count++;
+				}
+			}
+			meanders[i] = new Meander[count];
+		}
+
+		int[] counts = new int[order]; // to keep track of how many meanders have been added to each array in meanders[][]
+		for (Meander meander : allMeanders) {
+			int lev = meander.top.level() - 1;
+			meanders[lev][counts[lev]] = meander;
+			counts[lev]++;
+		}
+
+		return meanders;
+	}
+
+
 
 	/**
 	 * counts how many meanders there are of a given order
@@ -53,16 +90,20 @@ public class Meander {
 		return count;
 	}
 	
+
+
 	/**
-	 * given a size, generates each possible pair of perfect matchings of that size (there are C(mOrder)^2 such pairs, where C(n) is the nth Catalan number),
+	 * given a size (order), generates each possible pair of perfect matchings of that size (there are C(mOrder)^2 such pairs, where C(n) is the nth Catalan number),
 	 * checks that a pair creates a meander (unless it's the same perfect matching on top and on bottom, in which case it is not a meander),
-	 * and then makes every possible 01 move on top, and checks whether a corresponding move on the bottom (to fix the meander) was found;
+	 * and then makes every possible 01 move on top, and checks whether a compensating 	move on the bottom (to fix the meander) was found;
 	 * if not, then draw that meander and return
+	 *
+	 * long story short, look for a meander where some 01 move on top has no compensating 01 move on the bottom
 	 * 
 	 * @param mOrder the desired size of each perfect matching
 	 */
 	public static void testMatchings(int mOrder) {
-		String[] matchingInts = Catalan.CnStrings(mOrder); // calls the public function from Catalan.java
+		String[] matchingInts = Catalan.CnStrings(mOrder);
 		boolean done = false;
 		for (int i = 0; i < matchingInts.length; i++) {
 			for (int j = 0; j < matchingInts.length; j++) {
@@ -91,6 +132,8 @@ public class Meander {
 		
 	}
 	
+
+
 	public Meander (PerfectMatching t, PerfectMatching b) {
 		if (t == null) {
 			throw new IllegalArgumentException("top is null");
@@ -105,6 +148,22 @@ public class Meander {
 		bottom = b;
 		order = t.order;
 	}
+
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Meander))
+			return false;
+		Meander other = (Meander) obj;
+		return (other.top.equals(top) && other.bottom.equals(bottom));
+	}
+
+
 	
 	/**
 	 * check whether it's actually a meander
@@ -128,6 +187,8 @@ public class Meander {
 		return (counter == order);
 	}
 	
+
+
 	/**
 	 * tries to make the 01 move on the top or bottom (whichever is specified),
 	 * then tests 01 moves on the other half to try to find one that "repairs" the meander (makes it into one loop again)
@@ -184,6 +245,7 @@ public class Meander {
 	}
 	
 	
+
 	public void draw() {
 		double[][][] pointsArrays = new double[2][order*2][4];
 		int[][][] arcsArrays = new int[2][order][4];
@@ -204,9 +266,5 @@ public class Meander {
 			}
 		}
 		DrawFrame.drawMeander(pointsArrays[0], arcsArrays[0], pointsArrays[1], arcsArrays[1]);
-		
 	}
-	
-	
-	
 }
