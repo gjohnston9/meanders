@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Stack;
+import java.util.Arrays;
 
 
 public class PerfectMatching {
@@ -13,10 +14,14 @@ public class PerfectMatching {
 	int[][] arcs; // list of the arcs (connections between points) that make up the perfect matching; the first point is zero and the last is 2*order - 1
 	int[][] points; // updated when arcs is updated; tells you where a given point is found in arcs array (used in Meander)
 	int[] oz; // another representation of the perfect matching; a 0 represents the beginning of an arc, and a 1 represents the end of one
-	static int d = 20; // diameter of points
-	static int x = 60; // horizontal separation of points
+	static int d = 10; // diameter of points
+	static int x = 30; // horizontal separation of points
 	
 	
+	public int arcsInCommon(PerfectMatching a, PerfectMatching b) {
+
+	}
+
 	
 	/**
 	 * construct a Perfect Matching from an array of arcs
@@ -89,6 +94,22 @@ public class PerfectMatching {
 		}
 		pointsSetUp();
 	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof PerfectMatching))
+			return false;
+		PerfectMatching other = (PerfectMatching) obj;
+		return Arrays.equals(other.oz, oz);
+	}
+
+
+
 	
 	/**
 	 * use arcs array to make/update points array (described at top)
@@ -160,6 +181,8 @@ public class PerfectMatching {
 		}
 		
 	}
+
+
 	
 	/**
 	 * @return number of arcs with odd starting point (used to determine level of the perfect matching)
@@ -171,15 +194,24 @@ public class PerfectMatching {
 		}
 		return odds;
 	}
+
+
 	
+	/**
+	 * level of meander - ranges from 1 to n
+	 */
 	public int level() {
 		return order + 1 - oddStarts();
 	}
+
+
 
 	public int order() {
 		return order;
 	}
 	
+
+
 	/**
 	 * make a new text file where each line gives instructions for drawing an arc to TiKZ,
 	 * a package for creating graphics in LaTeX
@@ -218,6 +250,8 @@ public class PerfectMatching {
 		} catch (Exception e) {}
 	}
 	
+
+
 	/**
 	 * combine a list of text files
 	 * @param fileNames array of file names
@@ -271,26 +305,6 @@ public class PerfectMatching {
 	}
 	
 	
-	public void drawTranslated(int x, int y) {
-		double[][] pointsArray = new double[order*2][4];
-		for (int i = 0; i < order*2; i++) {
-			pointsArray[i][0] = x*(i+1)-d/2;
-			pointsArray[i][1] = 250-d/2; // y-center of each circle
-			pointsArray[i][2] = pointsArray[i][3] = d;
-		}
-		
-		int[][] arcsArray = new int[order][4];
-		for (int i = 0; i < order; i++) {
-			arcsArray[i][0] = (arcs[i][0]+1)*x; //top-left x
-			arcsArray[i][2] = (Math.abs(arcs[i][1]-arcs[i][0]))*x; //width
-			arcsArray[i][3] = arcsArray[i][2]/2; // height
-			arcsArray[i][1] = DrawFrame.height/2 - arcsArray[i][3]/2 - d/2; // top-left y
-		}
-//		DrawFrame.drawPerfectMatchingTranslated(pointsArray, arcsArray, x, y);
-		throw new UnsupportedOperationException("not done yet...");
-	}
-	
-	
 	
 	/**
 	 * draw this Perfect Matching
@@ -313,6 +327,8 @@ public class PerfectMatching {
 		DrawFrame.drawPerfectMatching(pointsArray, arcsArray);
 	}
 	
+
+
 	/**
 	 * @return string representation of perfect matching with 0's and 1's
 	 */
@@ -324,6 +340,7 @@ public class PerfectMatching {
 		return print.substring(0, print.length() - 2);
 	}
 	
+
 	
 	/**
 	 * @return return string representation of list of arcs that make up the perfect matching
@@ -336,6 +353,8 @@ public class PerfectMatching {
 		return print.substring(0, print.length() - 2);
 	}
 	
+
+
 	/**
 	 * @return string representation of list of points (describe above)
 	 */
@@ -347,6 +366,8 @@ public class PerfectMatching {
 		return print.substring(0, print.length() - 2); // exclude the final comma
 	}
 	
+
+
 	/**
 	 * create a file with a list of the number of perfect matchings on each level, for orders 1 - maxLevel inclusive.
 	 * 
@@ -367,15 +388,6 @@ public class PerfectMatching {
 				writer.write("~~~~~~~~");
 				writer.newLine();
 			}
-//			writer.write("\\begin{tikzpicture}");
-//			writer.newLine();
-//			for (String line : lines) {
-//				writer.write(line);
-//				writer.newLine();
-//			}
-//			writer.write("\\end{tikzpicture}");
-//			writer.newLine();
-//			writer.newLine();
 			writer.close();
 		} catch (Exception e) {}		
 		

@@ -12,7 +12,47 @@ public class Catalan {
 		return CnStringsHelp(n, CatalanNumbers(n));
 	}
 	
-	
+	public static void main(String[] args) {
+		int[] row = NarayanaRow(7);
+		for (int i = 0; i < row.length; i++) {
+			System.out.print(row[i] + " ");
+		}
+	}
+
+	/**
+	* @param order order of perfect matchings
+	* @return list containing number of perfect matchings on each level of G(n)
+	*/
+	public static int[] NarayanaRow(int order) {
+		int[] row = new int[order];
+		for (int i = 0; i < order; i++) {
+			row[i] = Narayana(order, i+1);
+		}
+		return row;
+	}
+
+	/**
+	* @param n order
+	* @param k level
+	* @return number of perfect matchings on level k of G(n) (graph of perfect matchings of order n)
+	*/
+	public static int Narayana(int n, int k) {
+		return (binom(n, k) * binom(n, k-1)) / n;
+	}
+
+	private static int binom(int n, int k) {
+		return fact(n) / (fact(k) * fact(n-k));
+	}
+
+	private static int fact(int k) {
+		if (k <= 1) {
+			return 1;
+		} else {
+			return k * fact(k-1);
+		}
+	}
+
+
 	/**
 	 * The Catalan recurrence tells you that C(n) is equal to the sum of C(i)C(j) over all pairs i,j such that i+j = n-1 (with i >= 0 and j >= 0)
 	 * when computing the Catalan numbers, you have a base case which is a number,
@@ -109,11 +149,6 @@ public class Catalan {
 		} while (balance != 0);
 		
 		return j;
-	}
-	
-	
-	public static void main(String[] args) {
-		
 	}
 	
 }
