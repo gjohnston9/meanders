@@ -22,6 +22,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 
@@ -30,7 +33,7 @@ import javafx.stage.Stage;
 
 public class Graphing extends Application {
 
-    static int n = 5;   // order of meanders/perfectmatchings : exists to make sure each column is wide enough
+    static int n = 3;   // order of meanders/perfectmatchings : exists to make sure each column is wide enough
     // static int width = 2*n*PerfectMatching.d + 2*n*(PerfectMatching.x+1);
     static int width = 2*n*(PerfectMatching.x+3);
     static int height = 200;
@@ -68,16 +71,6 @@ public class Graphing extends Application {
     }
 
 
-
-    public static void saveToFile(WritableImage wim) {
-        File file = new File("graphics/output.png");
-        BufferedImage bim = SwingFXUtils.fromFXImage(wim, null);
-        try {
-            ImageIO.write(bim, "png", file);
-        } catch (Exception e) {}
-      }
-
-
     private GridPane addMeandersGridPane() {
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -107,14 +100,33 @@ public class Graphing extends Application {
         return grid;
     }
 
+    /**
+    * create and return line going between two panes in GridPane
+    *
+    * @param x1 column index of first pane
+    * @param y1 row index of first pane
+    * @param x2 column index of second pane
+    * @param y2 row index of second pane
+    *
+    * @return line - to be added to first pane (pane in column x1, row y1)
+    */
+    private Line connectDoubleSpaced(int x1, int y1, int x2, int y2) {
+        Line line = new Line();
+        line.setStartX( ((float) width) / 2); // middle of pane
+        line.setStartY( ((float) height) / 2); // middle of pane
+        line.setEndX(line.getStartX() + width * (x2 - x1));
+        line.setEndY(line.getStartY() + height * (y2 - y1));
+        return line;
+    }
+
 
     /*
      * Creates a grid for the center region with four columns and three rows
      */
     private GridPane addPMGridPane() {
         GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10); // might have to adjust these to get the spacing right (one of the final steps)
+        grid.setHgap(0);
+        grid.setVgap(0); // might have to adjust these to get the spacing right (one of the final steps)
         grid.setPadding(new Insets(0, 0, 0, 0)); // order is clockwise from top (T R B L). shouldn't have to use this, it's just padding between the edge of the picture and the outside edge of the grid
         grid.setGridLinesVisible(true); // turn off later
 
@@ -133,8 +145,8 @@ public class Graphing extends Application {
             pane.getChildren().addAll(shapes);
             int lev = pm.level() - 1;
             int i = levelCounters[pm.level()-1];
-            // grid.add(pane, levelCounters[lev] + (numColumns - levels[lev]) / 2, lev*2); // for every other row
-            grid.add(pane, levelCounters[lev] + (numColumns - levels[lev]) / 2, lev);
+            grid.add(pane, levelCounters[lev] + (numColumns - levels[lev]) / 2, lev*2); // for every other row
+            // grid.add(pane, levelCounters[lev] + (numColumns - levels[lev]) / 2, lev); // for every row
             levelCounters[pm.level()-1]++;
         }
         // end magic
@@ -143,12 +155,24 @@ public class Graphing extends Application {
             grid.getColumnConstraints().add(new ColumnConstraints(width, width, Double.MAX_VALUE));
         }
 
-        for (int i = 0; i < 2*n - 1; i++) {
+        for (int i = 0; i < 2*n-1; i++) {
             grid.getRowConstraints().add(new RowConstraints(height, height, Double.MAX_VALUE));
         }
 
+        Pane p = new Pane();
+        p.getChildren().add(connectDoubleSpaced(0, 2, 1, 1));
+        grid.add(p, 0, 2);
+
+        // for (int i = 0; i < 4; i++) {
+        //     grid.getColumnConstraints().add(new ColumnConstraints(width, width, Double.MAX_VALUE));
+        // }
+
+        // for (int i = 0; i < n; i++) {
+        //     grid.getRowConstraints().add(new RowConstraints(height, height, Double.MAX_VALUE));
+        // }
+
         Pane pane = new Pane();
-        pane.setPrefSize(150, 150); // leaving this out will give the minimum size possible to fit everything that you add in. I think.
+        pane.setPrefSize(300, 300); // leaving this out will give the minimum size possible to fit everything that you add in. I think.
         Rectangle rect = new Rectangle(40.0, 40.0);
         rect.setFill(Color.BLUE);
         rect.relocate(50, 50);
@@ -156,23 +180,14 @@ public class Graphing extends Application {
         label.relocate(0, 0); // coordinates for top-left corner of label
 
         Line line = new Line();
-        line.setStartX(0);
-        line.setStartY(20);
+        line.setStartX(50);
+        line.setStartY(50);
         int offset = 6;
-        line.setEndX(10 * offset);
-        line.setEndY(10 * offset);
+        line.setEndX(450);
+        line.setEndY(450);
         
-        // pane.getChildren().addAll(rect, label, line);
-        // grid.add(pane, 1, 2); // **********************************************
-
-
-        Line line2 = new Line();
-        line2.setStartX(0);
-        line2.setStartY(0);
-        line2.setEndX(20);
-        line2.setEndY(20);
-        // pane.getChildren().addAll(line2); // you can add to pane before or after adding pane to grid.
-
+        pane.getChildren().add(line);
+        // grid.add(pane, 1, 1); // **********************************************
         
 
         PerfectMatching[] pms = new PerfectMatching[5];
