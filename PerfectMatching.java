@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Stack;
 import java.util.Arrays;
+import java.util.HashSet;
 
 
 public class PerfectMatching {
@@ -17,9 +18,93 @@ public class PerfectMatching {
 	static int d = 10; // diameter of points
 	static int x = 30; // horizontal separation of points
 	
-	
-	public int arcsInCommon(PerfectMatching a, PerfectMatching b) {
-		return 0;
+
+	public static void main(String[] args) {
+		PerfectMatching test = new PerfectMatching("11100010");
+		PerfectMatching test2 = new PerfectMatching("10101010");
+		test.draw();
+		test2.draw();
+		System.out.println(arcsInCommon(test, test2));
+		System.out.println(connected01(test, test2));
+	}
+
+
+	/**
+	 * Returns true if and only if a can be transformed into b through a single matching exchange
+	 */
+	public static boolean connected(PerfectMatching a, PerfectMatching b) {
+		if (a.order != b.order) {
+			throw new IllegalArgumentException("provided PerfectMatchings don't have the same order.");
+		}
+		return arcsInCommon(a, b).size() == a.order - 2;
+	}
+
+	/**
+	 * Returns true if and only if a can be transformed into b through a single 0-1 move
+	 */
+	public static boolean connected01(PerfectMatching a, PerfectMatching b) {
+		if (a.order != b.order) {
+			throw new IllegalArgumentException("provided PerfectMatchings don't have the same order.");
+		}
+		HashSet<int[]> commonArcs = arcsInCommon(a, b); // get set of common arcs
+		if (commonArcs.size() != a.order - 2) {
+			return false;
+		}
+		HashSet<int[]> arcsNotInCommon = new HashSet<>();
+		for (int[] arc : a.arcs) {
+			if (!commonArcs.contains(arc)) {
+				arcsNotInCommon.add(arc);
+			}
+		}
+		int[][] arcsNotInCommonArray = arcsNotInCommon.toArray(new int[2][arcsNotInCommon.size()]);
+		int i = arcsNotInCommonArray[0][0], j = arcsNotInCommonArray[0][1];
+		int ii = arcsNotInCommonArray[1][0], jj = arcsNotInCommonArray[1][1];
+		if (i > ii) { // ensure that i < ii
+			int iTemp = i;
+			i = ii;
+			ii = iTemp;
+
+			int jTemp = j;
+			j = jj;
+			jj = jTemp;
+		}
+
+		if (j < ii) { // then i < j < ii < jj: sibling arcs. the matching exchange performed on these two arcs is a 01
+					  // move iff j + 1 = ii
+			return j + 1 == ii;
+		} else { // then i < ii < jj < j: nested arcs. the matching exchange performed on these two arcs is a 01 move iff
+			     // ii + 1 = jj
+			return ii + 1 == jj;
+		}
+	}
+
+
+	/**
+	 * Check whether this perfect matching contains an arc starting at "start" and ending at "end"
+	 */
+	private boolean containsArc(int start, int end) {
+		for (int[] arc : arcs) {
+			if (arc[0] == start && arc[1] == end) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Return a set containing all the arcs that occur in both perfect matchings
+	 */
+	public static HashSet<int[]> arcsInCommon(PerfectMatching a, PerfectMatching b) {
+		if (a.order != b.order) {
+			throw new IllegalArgumentException("provided PerfectMatchings don't have the same order.");
+		}
+		HashSet<int[]> arcSet = new HashSet<>();
+		for (int[] arc : a.arcs) {
+			if (b.containsArc(arc[0], arc[1])) {
+				arcSet.add(arc);
+			}
+		}
+		return arcSet;
 	}
 
 	
@@ -198,7 +283,7 @@ public class PerfectMatching {
 
 	
 	/**
-	 * level of meander - ranges from 1 to n
+	 * level of meander - ranges from 1 to n, and is equal to number of even starts + 1
 	 */
 	public int level() {
 		return order + 1 - oddStarts();
@@ -408,35 +493,6 @@ public class PerfectMatching {
 		}
 		
 		return ret;
-	}
-	
-	public static void main(String[] args) {
-		PerfectMatching test = new PerfectMatching("11100010");
-		
-		test.draw();
-		
-		writeLevelNumbers("levelNumbers 1 to 7", 7);
-		System.out.println("done");
-		
-//		test.TikZfile("test", 1);
-//		
-		
-		
-//		for (int i = 0, twos = 0, threes = 0; i < strings.length; i++) {
-//			PerfectMatching match = new PerfectMatching(strings[i]);
-//			match.TikZfile(Integer.toString(i), .75);
-//			if (match.oddStarts() == 2) {
-//				names2odds.add(Integer.toString(i) + ".txt");
-//			} else if (match.oddStarts() == 3) {
-//				names3odds.add(Integer.toString(i) + ".txt");
-//			}
-//		}
-		
-//		System.out.println(names2odds.size());
-		
-//		concatFiles(names2odds.toArray(new String[names2odds.size()]), "allTwos");
-//		concatFiles(names2odds.toArray(new String[names3odds.size()]), "allThrees");
-		
 	}
 	
 }

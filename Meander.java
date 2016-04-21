@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Meander {
 
@@ -11,12 +12,11 @@ public class Meander {
 
 
 	public static void main(String[] args) {
-		// System.out.println(howMany(3));
-		// System.out.println(allMeanders(3).length);
-		Meander[][] mbo = allMeandersSeparatedByOrder(5);
-		for (int i = 0; i < mbo.length; i++) {
-			System.out.println(mbo[i].length);
-		}
+		Meander m1 = new Meander(new PerfectMatching("11100010"), new PerfectMatching("10110100"));
+		Meander m2 = new Meander(new PerfectMatching("10101010"), new PerfectMatching("11010100"));
+		m1.draw();
+		m2.draw();
+		System.out.println(connected(m1, m2));
 	}
 	
 
@@ -43,7 +43,7 @@ public class Meander {
 	 * @int order order of meanders
 	 * @return array where array[k] is an array containing each meander that has its top on level k of G(n)
 	 */
-	public static Meander[][] allMeandersSeparatedByOrder(int order) {
+	public static Meander[][] allMeandersSeparatedByLevel(int order) {
 		Meander[][] meanders = new Meander[order][]; // to be returned
 		Meander[] allMeanders = allMeanders(order);
 		for (int i = 0; i < order; i++) { // determine how many meanders are on each level (level of a meander is determined by the level of its top)
@@ -66,7 +66,23 @@ public class Meander {
 		return meanders;
 	}
 
+	public static boolean connected(Meander a, Meander b) {
+		if (!a.isMeander()) { 
+			throw new IllegalArgumentException("first argument is not a meander.");
+		} else if (!b.isMeander()) {
+			throw new IllegalArgumentException("second argument is not a meander.");
+		}
+		return (PerfectMatching.connected(a.top, b.top) && PerfectMatching.connected(a.bottom, b.bottom));
+	}
 
+	public static boolean connected01(Meander a, Meander b) {
+		if (!a.isMeander()) { 
+			throw new IllegalArgumentException("first argument is not a meander.");
+		} else if (!b.isMeander()) {
+			throw new IllegalArgumentException("second argument is not a meander.");
+		}
+		return (PerfectMatching.connected01(a.top, b.top) && PerfectMatching.connected01(a.bottom, b.bottom));
+	}
 
 	/**
 	 * counts how many meanders there are of a given order
