@@ -12,11 +12,14 @@ public class Meander {
 
 
 	public static void main(String[] args) {
-		Meander m1 = new Meander(new PerfectMatching("11100010"), new PerfectMatching("10110100"));
-		Meander m2 = new Meander(new PerfectMatching("10101010"), new PerfectMatching("11010100"));
-		m1.draw();
-		m2.draw();
-		System.out.println(connected(m1, m2));
+		// Meander m1 = new Meander(new PerfectMatching("11100010"), new PerfectMatching("10110100"));
+		// Meander m2 = new Meander(new PerfectMatching("10101010"), new PerfectMatching("11010100"));
+		// m1.draw();
+		// m2.draw();
+		// System.out.println(connected(m1, m2));
+		for (int i = 1; i < 12; i++) {
+			System.out.println("There are " + Meander.howMany(i) + " meanders of order " + i);
+		}
 	}
 	
 
@@ -66,6 +69,8 @@ public class Meander {
 		return meanders;
 	}
 
+
+
 	public static boolean connected(Meander a, Meander b) {
 		if (!a.isMeander()) { 
 			throw new IllegalArgumentException("first argument is not a meander.");
@@ -74,6 +79,8 @@ public class Meander {
 		}
 		return (PerfectMatching.connected(a.top, b.top) && PerfectMatching.connected(a.bottom, b.bottom));
 	}
+
+
 
 	public static boolean connected01(Meander a, Meander b) {
 		if (!a.isMeander()) { 

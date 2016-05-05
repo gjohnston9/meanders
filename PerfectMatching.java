@@ -15,18 +15,93 @@ public class PerfectMatching {
 	int[][] arcs; // list of the arcs (connections between points) that make up the perfect matching; the first point is zero and the last is 2*order - 1
 	int[][] points; // updated when arcs is updated; tells you where a given point is found in arcs array (used in Meander)
 	int[] oz; // another representation of the perfect matching; a 0 represents the beginning of an arc, and a 1 represents the end of one
-	static int d = 10; // diameter of points
+	static int d = 10; // diameter of points (for Graphing.java: d = 10, x = 30)
 	static int x = 30; // horizontal separation of points
 	
 
 	public static void main(String[] args) {
 		PerfectMatching test = new PerfectMatching("11100010");
-		PerfectMatching test2 = new PerfectMatching("10101010");
+		// PerfectMatching test2 = new PerfectMatching("10101010");
 		test.draw();
-		test2.draw();
-		System.out.println(arcsInCommon(test, test2));
-		System.out.println(connected01(test, test2));
+		// test2.draw();
+		// System.out.println(arcsInCommon(test, test2));
+		// System.out.println(connected01(test, test2));
 	}
+
+
+	/**
+	 * construct a Perfect Matching from an array of arcs
+	 */
+	public PerfectMatching(int[][] arcs) {
+		order = arcs.length;		
+		this.arcs = arcs;
+		oz = new int[order*2];
+		for (int i = 0; i < arcs.length; i++) {
+			oz[arcs[i][0]] = 1;
+			oz[arcs[i][1]] = 0;
+		}
+		pointsSetUp();
+	}
+	
+	
+	/**
+	 * construct a Perfect Matching from an array of 0's and 1's indicating whether each index of the meander
+	 * indicates the start of another arc or the closing of one
+	 */
+	public PerfectMatching(int[] oz) {
+		if (oz.length % 2 != 0) {
+			throw new IllegalArgumentException("ones and zeros array is of odd length");
+		}
+		order = oz.length/2;
+		this.oz = oz;
+		
+		arcs = new int[order][2];
+		
+		Stack<Integer> stack = new Stack<Integer>();
+		int counter = 0;
+		for (int i = 0; i < oz.length; i++) {
+			if (oz[i] == 1) {
+				stack.push(i);
+			} else {
+				arcs[counter][0] = stack.pop();
+				arcs[counter][1] = i;
+				counter++;
+			}
+		}
+		pointsSetUp();
+	}
+	
+	
+	/**
+	 * construct a Perfect Matching from a string of 0's and 1's indicating whether each index of the meander
+	 * indicates the start of another arc or the closing of one
+	 */
+	public PerfectMatching(String zeroOnes) {
+		int[] nums = new int[zeroOnes.length()];
+		for (int i = 0; i < nums.length; i++) {
+			nums[i] = Integer.parseInt(String.valueOf(zeroOnes.charAt(i)));
+		}
+		
+		order = nums.length/2;
+		oz = nums;
+		
+		arcs = new int[order][2];
+		
+		Stack<Integer> stack = new Stack<Integer>();
+		int counter = 0;
+		for (int i = 0; i < oz.length; i++) {
+			if (oz[i] == 1) {
+				stack.push(i);
+			} else {
+				arcs[counter][0] = stack.pop();
+				arcs[counter][1] = i;
+				counter++;
+			}
+		}
+		pointsSetUp();
+	}
+
+
 
 
 	/**
@@ -108,77 +183,7 @@ public class PerfectMatching {
 	}
 
 	
-	/**
-	 * construct a Perfect Matching from an array of arcs
-	 */
-	public PerfectMatching(int[][] arcs) {
-		order = arcs.length;		
-		this.arcs = arcs;
-		oz = new int[order*2];
-		for (int i = 0; i < arcs.length; i++) {
-			oz[arcs[i][0]] = 1;
-			oz[arcs[i][1]] = 0;
-		}
-		pointsSetUp();
-	}
 	
-	
-	/**
-	 * construct a Perfect Matching from an array of 0's and 1's indicating whether each index of the meander
-	 * indicates the start of another arc or the closing of one
-	 */
-	public PerfectMatching(int[] oz) {
-		if (oz.length % 2 != 0) {
-			throw new IllegalArgumentException("ones and zeros array is of odd length");
-		}
-		order = oz.length/2;
-		this.oz = oz;
-		
-		arcs = new int[order][2];
-		
-		Stack<Integer> stack = new Stack<Integer>();
-		int counter = 0;
-		for (int i = 0; i < oz.length; i++) {
-			if (oz[i] == 1) {
-				stack.push(i);
-			} else {
-				arcs[counter][0] = stack.pop();
-				arcs[counter][1] = i;
-				counter++;
-			}
-		}
-		pointsSetUp();
-	}
-	
-	
-	/**
-	 * construct a Perfect Matching from a string of 0's and 1's indicating whether each index of the meander
-	 * indicates the start of another arc or the closing of one
-	 */
-	public PerfectMatching(String zeroOnes) {
-		int[] nums = new int[zeroOnes.length()];
-		for (int i = 0; i < nums.length; i++) {
-			nums[i] = Integer.parseInt(String.valueOf(zeroOnes.charAt(i)));
-		}
-		
-		order = nums.length/2;
-		oz = nums;
-		
-		arcs = new int[order][2];
-		
-		Stack<Integer> stack = new Stack<Integer>();
-		int counter = 0;
-		for (int i = 0; i < oz.length; i++) {
-			if (oz[i] == 1) {
-				stack.push(i);
-			} else {
-				arcs[counter][0] = stack.pop();
-				arcs[counter][1] = i;
-				counter++;
-			}
-		}
-		pointsSetUp();
-	}
 
 
 	@Override

@@ -1,3 +1,4 @@
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class Graphing extends Application {
     // static int width = 2*n*PerfectMatching.d + 2*n*(PerfectMatching.x+1);
     static int width = 2*n*(PerfectMatching.x+3);
     static int height = 200;
-    static int emptyRowHeight = height * 2;
+    static int emptyRowHeight = height * 4;
 
     /**
      * @param args the command line arguments
@@ -72,8 +73,105 @@ public class Graphing extends Application {
         // snap.setViewport(new Rectangle2D(0, 0, grid.getWidth(), grid.getHeight()));
         // WritableImage snapshot = border.snapshot(snap, null);
         // saveToFile(snapshot, "output");
-        splitAndSave(border, grid.getHeight(), grid.getWidth(), "split", 1000, 1000);
+
+        // splitAndSave(border, grid.getHeight(), grid.getWidth(), "split", 500, 500);
+
+        BufferedImage[][] images = splitIntoBufferedImages(border, grid.getHeight(), grid.getWidth(), 2000, 2000);
+        joinAndSaveSplitImages(images, 2000, 2000, "combined2");
     }
+
+
+    
+
+    /**
+     * Split the canvas into a grid of BufferedImages and return the array of images
+     *
+     * @param border source of picture
+     * @param height height of borderpane (first argument)
+     * @param width width of borderpane (first argument)
+     * @param splitSizeHeight height of each individual BufferedImage
+     * @param splitSizeWidth width of each individual BufferedImage
+     *
+     * @return array of BufferedImages; images[i][j] is at position (y=i, x=j) in the grid of images that make up the original picture
+     */
+    public static BufferedImage[][] splitIntoBufferedImages(BorderPane border, double height, double width, int splitSizeHeight, int splitSizeWidth) {
+        int y = (int) Math.ceil( (float) height / splitSizeHeight);
+        int x = (int) Math.ceil( (float) width / splitSizeWidth);
+        // System.out.println("y is " + y + " and x is " + x + ".");
+        BufferedImage[][] images = new BufferedImage[y][x];
+        System.out.println("splitting");
+        for (int i = 0; i < y; i++) {
+            System.out.println("i is " + i);
+            for (int j = 0; j < x; j++) {
+                System.out.println("  j is " + j);
+                SnapshotParameters snap = new SnapshotParameters();
+                snap.setViewport(new Rectangle2D(j * splitSizeWidth, i * splitSizeHeight, splitSizeWidth, splitSizeHeight));
+                WritableImage snapshot = border.snapshot(snap, null);
+                images[i][j] = SwingFXUtils.fromFXImage(snapshot, null);
+
+                // extra testing stuff~~~~~~~~~~
+                // File outputFile = new File("C:/Users/greg9/Dropbox/meanders/meanders/graphicsTest/" + "y" + i + "x" + j + ".png");
+                // try {
+                //     ImageIO.write(images[i][j], "png", outputFile);
+                // } catch (IOException e) {
+                //     throw new RuntimeException(e);
+                // }
+            }
+        }
+        return images;
+    }
+
+
+    /**
+     * Combine images in a BufferedImage array into a single iamge, and save the image.
+     *
+     * @param images array of BufferedImages 
+     * @param height height of each individual image
+     * @param width width of each individual image
+     * @param filename filename for the saved image
+     */
+    public static void joinAndSaveSplitImages(BufferedImage[][] images, double height, double width, String filename) {
+        int totalHeight = (int) height * images.length;
+        int totalWidth = (int) width * images[0].length;
+        BufferedImage newImage = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = newImage.createGraphics();
+        // Color oldColor = g2.getColor();
+        // g2.setPaint(Color.WHITE);
+        // g2.fillRect(0, 0, totalWidth, totalHeight);
+        // g2.setColor(oldColor);
+        System.out.println("joining and saving");
+        for (int i = 0; i < images.length; i++) {
+            System.out.println("i is " + i);
+            for (int j = 0; j < images[0].length; j++) {
+                System.out.println("  j is " + j);
+                BufferedImage image = images[i][j];
+                g2.drawImage(image, null, j * (int) width, i * (int) height);
+            }
+        }
+        g2.dispose();
+        File outputFile = new File("D:/Dropbox/meanders/meanders/graphicsTest/" + filename + ".png");
+        try {
+            ImageIO.write(newImage, "png", outputFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("done");
+    }
+
+
+
+
+    public static void saveToFile(Image image, String filename) {
+        File outputFile = new File("C:/Users/greg9/Dropbox/meanders/meanders/graphicsTest/" + filename + ".png");
+        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+        try {
+            ImageIO.write(bImage, "png", outputFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
 
     /**
@@ -82,8 +180,8 @@ public class Graphing extends Application {
      * and that probably won't be the entire picture.
      *
      * @param border source of picture
-     * @param height height of borderpane
-     * @param width width of borderpane
+     * @param height height of borderpane (first argument)
+     * @param width width of borderpane (first argument)
      * @param filename base name of saved pictures to save
      * @param splitSizeHeight height of each individual saved picture
      * @param splitSizeWidth width of each individual saved picture
@@ -100,16 +198,6 @@ public class Graphing extends Application {
                 String name = "y" + i + "x" + j + filename;
                 saveToFile(snapshot, name);
             }
-        }
-    }
-
-    public static void saveToFile(Image image, String filename) {
-        File outputFile = new File("C:/Users/greg9/Dropbox/meanders/meanders/graphics/" + filename + ".png");
-        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-        try {
-            ImageIO.write(bImage, "png", outputFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
