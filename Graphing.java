@@ -55,7 +55,7 @@ public class Graphing extends Application {
 
     @Override
     public void start(Stage stage) {
-// Use a border pane as the root for scene
+        // Use a border pane as the root for scene
         BorderPane border = new BorderPane();
         ScrollPane s1 = new ScrollPane();
         s1.setPrefSize(1700, 700);
@@ -68,16 +68,10 @@ public class Graphing extends Application {
         stage.setScene(scene);
         stage.show();
 
-        // screenshot
-        // SnapshotParameters snap = new SnapshotParameters();
-        // snap.setViewport(new Rectangle2D(0, 0, grid.getWidth(), grid.getHeight()));
-        // WritableImage snapshot = border.snapshot(snap, null);
-        // saveToFile(snapshot, "output");
-
-        // splitAndSave(border, grid.getHeight(), grid.getWidth(), "split", 500, 500);
+        // savePaneToFile(border, "snaptest");
 
         BufferedImage[][] images = splitIntoBufferedImages(border, grid.getHeight(), grid.getWidth(), 2000, 2000);
-        joinAndSaveSplitImages(images, 2000, 2000, "combined2");
+        joinAndSaveSplitImages(images, 2000, 2000, "01moves_n=5");
     }
 
 
@@ -97,25 +91,13 @@ public class Graphing extends Application {
     public static BufferedImage[][] splitIntoBufferedImages(BorderPane border, double height, double width, int splitSizeHeight, int splitSizeWidth) {
         int y = (int) Math.ceil( (float) height / splitSizeHeight);
         int x = (int) Math.ceil( (float) width / splitSizeWidth);
-        // System.out.println("y is " + y + " and x is " + x + ".");
         BufferedImage[][] images = new BufferedImage[y][x];
-        System.out.println("splitting");
         for (int i = 0; i < y; i++) {
-            System.out.println("i is " + i);
             for (int j = 0; j < x; j++) {
-                System.out.println("  j is " + j);
                 SnapshotParameters snap = new SnapshotParameters();
                 snap.setViewport(new Rectangle2D(j * splitSizeWidth, i * splitSizeHeight, splitSizeWidth, splitSizeHeight));
                 WritableImage snapshot = border.snapshot(snap, null);
                 images[i][j] = SwingFXUtils.fromFXImage(snapshot, null);
-
-                // extra testing stuff~~~~~~~~~~
-                // File outputFile = new File("C:/Users/greg9/Dropbox/meanders/meanders/graphicsTest/" + "y" + i + "x" + j + ".png");
-                // try {
-                //     ImageIO.write(images[i][j], "png", outputFile);
-                // } catch (IOException e) {
-                //     throw new RuntimeException(e);
-                // }
             }
         }
         return images;
@@ -135,21 +117,14 @@ public class Graphing extends Application {
         int totalWidth = (int) width * images[0].length;
         BufferedImage newImage = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = newImage.createGraphics();
-        // Color oldColor = g2.getColor();
-        // g2.setPaint(Color.WHITE);
-        // g2.fillRect(0, 0, totalWidth, totalHeight);
-        // g2.setColor(oldColor);
-        System.out.println("joining and saving");
         for (int i = 0; i < images.length; i++) {
-            System.out.println("i is " + i);
             for (int j = 0; j < images[0].length; j++) {
-                System.out.println("  j is " + j);
                 BufferedImage image = images[i][j];
                 g2.drawImage(image, null, j * (int) width, i * (int) height);
             }
         }
         g2.dispose();
-        File outputFile = new File("D:/Dropbox/meanders/meanders/graphicsTest/" + filename + ".png");
+        File outputFile = new File(System.getProperty("user.dir") + "/graphics/" + filename + ".png");
         try {
             ImageIO.write(newImage, "png", outputFile);
         } catch (IOException e) {
@@ -159,10 +134,29 @@ public class Graphing extends Application {
     }
 
 
+    /**
+     * Save a copy of the BorderPane or ScrollPane
+     * i.e. savePaneToFile(border, "snaptest");
+     *
+     * @param filename filename (not absolute path, will be stored under "...cwd/graphics/filename.png"
+     */
+    public static void savePaneToFile(Pane pane, String filename) {
+        WritableImage snapshot = pane.snapshot(new SnapshotParameters(), null);
+        saveImageToFile(snapshot, filename);
+    }
 
 
-    public static void saveToFile(Image image, String filename) {
-        File outputFile = new File("C:/Users/greg9/Dropbox/meanders/meanders/graphicsTest/" + filename + ".png");
+
+    /**
+     * Save a copy of a WriteableImage
+     * i.e. SnapshotParameters snap = new SnapshotParameters(); 
+     *      WritableImage wImage = border.snapshot(snap, null);
+     *      saveImageToFile(wImage, "wimageTest");
+     *
+     * @param filename filename (not absolute path, will be stored under "...cwd/graphics/filename.png"
+     */
+    private static void saveImageToFile(WritableImage image, String filename) {
+        File outputFile = new File(System.getProperty("user.dir") + "/graphics/" + filename + ".png");
         BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
         try {
             ImageIO.write(bImage, "png", outputFile);
@@ -173,11 +167,13 @@ public class Graphing extends Application {
 
 
 
-
     /**
      * Instead of saving a single picture of the entire canvas, split it into pieces and save them.
      * Use the gridpane, not the scrollpane, above - using the scrollpane will result in only what's shown on the screen being saved,
      * and that probably won't be the entire picture.
+     *
+     * This is not really useful anymore because you can just use splitIntoBufferedImage() to get a BufferedImage array,
+     * and then use joinAndSaveSplitImages to join them into a single image and save it.
      *
      * @param border source of picture
      * @param height height of borderpane (first argument)
@@ -196,7 +192,7 @@ public class Graphing extends Application {
                 WritableImage snapshot = border.snapshot(snap, null);
 
                 String name = "y" + i + "x" + j + filename;
-                saveToFile(snapshot, name);
+                saveImageToFile(snapshot, name);
             }
         }
     }
@@ -249,7 +245,7 @@ public class Graphing extends Application {
             for (int j = 0; j < mbl[i].length; j++) {
                 Meander md = mbl[i][j];
                 for (Meander md2 : mbl[i-1]) { // for each Meander on the level above the Meander currently being considered
-                    if (Meander.connected01(md, md2)) { // if they are connected by a pair of 01 moves, draw a line between them
+                    if (Meander.connected01(md, md2)) { // if they are connected by a pair of 01 moves, draw a line between them********************************************
                         int[] mdLocation = locations.get(md);
                         int[] md2Location = locations.get(md2);
 
@@ -260,9 +256,6 @@ public class Graphing extends Application {
                 }
             }
         }
-        // Pane p = new Pane();
-        // p.getChildren().add(connectDoubleSpaced(0, 2, 1, 0));
-        // grid.add(p, 0, 2);
 
         return grid;
     }
@@ -297,7 +290,7 @@ public class Graphing extends Application {
         grid.setHgap(0);
         grid.setVgap(0); // might have to adjust these to get the spacing right (one of the final steps)
         grid.setPadding(new Insets(0, 0, 0, 0)); // order is clockwise from top (T R B L). shouldn't have to use this, it's just padding between the edge of the picture and the outside edge of the grid
-        grid.setGridLinesVisible(true); // turn off later
+        grid.setGridLinesVisible(true);
         
         int[] levelCounters = new int[n]; // to keep track of how many perfect matchings have been added to each level
         String[] cnStrings = Catalan.CnStrings(n); // string representation of each perfect matching
@@ -338,47 +331,7 @@ public class Graphing extends Application {
                 grid.getRowConstraints().add(new RowConstraints(emptyRowHeight, emptyRowHeight, Double.MAX_VALUE));
             }
         }
-
-        Pane p = new Pane();
-        p.getChildren().add(connectDoubleSpaced(0, 2, 1, 0));
-        grid.add(p, 0, 2);
-
-        // just testing shapes and stuff
-        Pane pane = new Pane();
-        pane.setPrefSize(300, 300); // leaving this out will give the minimum size possible to fit everything that you add in. I think.
-        Rectangle rect = new Rectangle(40.0, 40.0);
-        rect.setFill(Color.BLUE);
-        rect.relocate(50, 50);
-        Label label = new Label("Go!");
-        label.relocate(0, 0); // coordinates for top-left corner of label
-
-        Line line = new Line();
-        line.setStartX(50);
-        line.setStartY(0);
-        line.setEndX(450);
-        line.setEndY(450);
         
-        pane.getChildren().add(line);
-        // grid.add(pane, 1, 1); // ********************************************** uncomment this line to add the above pane to the grid
-        
-
-        // testing PM and meander stuff
-        PerfectMatching[] pms = new PerfectMatching[5];
-        pms[0] = new PerfectMatching("101010");
-        pms[1] = new PerfectMatching("111000");
-        pms[2] = new PerfectMatching("11001100");
-        HashSet<Shape> pmShapes = pmDraw(pms[2]);
-
-        Meander[] mds = new Meander[5];
-        mds[0] = new Meander(new PerfectMatching("101100"), new PerfectMatching("110010"));
-        mds[1] = new Meander(new PerfectMatching("110100"), new PerfectMatching("101010"));
-        mds[2] = new Meander(new PerfectMatching("111000"), new PerfectMatching("111000"));
-        // HashSet<Shape> mdShapes = meanderDraw(mds[0]);
-        // pane.getChildren().addAll(pmShapes);
-
-        // pane.getChildren().addAll(mdShapes);
-        // System.out.println(mds[1].top.level());
-        // System.out.println(mds[1].bottom.level());
         return grid;
     }
 
