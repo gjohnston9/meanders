@@ -38,11 +38,11 @@ import javafx.stage.Stage;
 
 public class Graphing extends Application {
 
-    static int n = 5;   // order of meanders/perfectmatchings : exists to make sure each column is wide enough
+    static int n = 4;   // order of meanders/perfectmatchings : exists to make sure each column is wide enough
     // static int width = 2*n*PerfectMatching.d + 2*n*(PerfectMatching.x+1);
     static int width = 2*n*(PerfectMatching.x+3);
     static int height = 200;
-    static int emptyRowHeight = height * 4;
+    static int emptyRowHeight = height * 3;
 
     /**
      * @param args the command line arguments
@@ -71,7 +71,7 @@ public class Graphing extends Application {
         // savePaneToFile(border, "snaptest");
 
         BufferedImage[][] images = splitIntoBufferedImages(border, grid.getHeight(), grid.getWidth(), 2000, 2000);
-        joinAndSaveSplitImages(images, 2000, 2000, "01moves_n=5");
+        joinAndSaveSplitImages(images, 2000, 2000, "01moves_n=4");
     }
 
 
