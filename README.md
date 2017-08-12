@@ -16,5 +16,5 @@ The 01 move is a more restricted version of the "local move operation" described
 
 # more recent work
 
-To help with the question of whether a graph of meanders of order *n* under 01 moves is connected, I created a way to draw the entire graph for a given *n*. An example of the result for *n*=3 is shown below.<br>
+To help with the question of whether a graph of meanders of order *n* under pairs of 01 moves is connected, I created a way to draw the entire graph for a given *n*. The result for *n*=3 is shown below.<br>
 ![](https://raw.githubusercontent.com/greg9381/meanders/master/graphics/01moves_n=3.png)
